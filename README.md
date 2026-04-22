@@ -15,3 +15,4 @@ Similarly, if you want to run the sending prompt only for some reason, run `bash
 ## Running your own server
 
 Make sure that the python3 libraries `flask` and `flask_cors` are installed. Then run `python3 backend.py`. Remember that this uses port 10101 for everything and for your chat service to be able to be accessed outside of the local network you need to forward that port. When you first run `client.sh`, it will prompt you for the server ip. Just enter the ip address or domain name without https:// or any such prefixes.
+Before running you need to modify the script to use the path to the directory where this repo is located. Otherwise it will fail.
