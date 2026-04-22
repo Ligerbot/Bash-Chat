@@ -1,4 +1,5 @@
 clear
+#check to see if we have a server set already
 if [ -e $HOME/.local/chatapp/server ]; then
 	server=$(cat $HOME/.local/chatapp/server)
 else
@@ -15,7 +16,8 @@ else
 	mkdir -p $HOME/.local/chatapp
 	echo $name > $HOME/.local/chatapp/name
 fi
-#email detect
+#check for email
+#Technically this is only required for the makekey.sh file.
 if [ -e $HOME/.local/chatapp/email ]; then
 	email=$(cat $HOME/.local/chatapp/email)
 else
@@ -24,19 +26,19 @@ else
 	echo $name > $HOME/.local/chatapp/email
 fi
 
+
 encrypt() {
+	#... this encrypts the message to yourself...
 	encrypted=$(echo "$1" | gpg --encrypt --armor -r "$email" | tr -d '\n')
-#	echo $encrypted
+	#will fix asap
 }
 
 send() {
 	#this is for sending a msg
 	echo -ne "\nEnter your message\n"
-#	read -t 2 -p "> " message
 	read -p "> " message
 	if [[ "$message" == "" ]]; then
 		true
-#               echo -ne "\e[31m\nMessage Empty\n\e[0m"
 	else
 		echo "Encrypting Message"
 		encrypt "[$name] $message"
