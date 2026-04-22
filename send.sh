@@ -1,11 +1,32 @@
 clear
+mkdir -p $HOME/.local/chatapp/recipients
+if [ -z "$(ls -A $HOME/.local/chatapp/recipients)" ]; then
+        echo "No recipients yet"
+        read -p "Recipients Name: " friendname
+        read -p "Recipient Email: " friendemail
+        echo "Messages will be sent to" $friendemail
+        echo $friendemail > "$HOME/.local/chatapp/recipients/$friendname"
+else
+        list=$(ls $HOME/.local/chatapp/recipients | nl)
+        echo "Choose a recipient"
+        echo $list
+        read -p "Recipient Name: " friendname
+        if [ -e "$HOME/.local/chatapp/recipients/$friendname" ]; then
+                friendemail=$(cat "$HOME/.local/chatapp/recipients/$friendname")
+        else
+                echo "Nonexistant Recipient"
+                exit
+        fi
+fi
+echo "Added recipient with name" $friendname "and with email" $friendemail
+
 #check to see if we have a server set already
 if [ -e $HOME/.local/chatapp/server ]; then
 	server=$(cat $HOME/.local/chatapp/server)
 else
 	read -p "Chat Server IP Address: " server
 	mkdir -p $HOME/.local/chatapp
-	echo $name > $HOME/.local/chatapp/server
+	echo $server > $HOME/.local/chatapp/server
 fi
 
 #see if name is set
@@ -16,21 +37,9 @@ else
 	mkdir -p $HOME/.local/chatapp
 	echo $name > $HOME/.local/chatapp/name
 fi
-#check for email
-#Technically this is only required for the makekey.sh file.
-if [ -e $HOME/.local/chatapp/email ]; then
-	email=$(cat $HOME/.local/chatapp/email)
-else
-	read -p "Your Email: " email
-	mkdir -p $HOME/.local/chatapp
-	echo $name > $HOME/.local/chatapp/email
-fi
-
 
 encrypt() {
-	#... this encrypts the message to yourself...
-	encrypted=$(echo "$1" | gpg --encrypt --armor -r "$email" | tr -d '\n')
-	#will fix asap
+	encrypted=$(echo "$1" | gpg --encrypt --armor -r "$friendemail" | tr -d '\n')
 }
 
 send() {

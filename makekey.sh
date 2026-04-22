@@ -1,3 +1,11 @@
+#check to see if we have a server set already
+if [ -e $HOME/.local/chatapp/server ]; then
+	server=$(cat $HOME/.local/chatapp/server)
+else
+	read -p "Chat Server IP Address: " server
+	mkdir -p $HOME/.local/chatapp
+	echo $server > $HOME/.local/chatapp/server
+fi
 #read the users name if any
 if [ -e $HOME/.local/chatapp/name ]; then
 	name=$(cat $HOME/.local/chatapp/name)
@@ -27,13 +35,15 @@ fi
 echo $passwdOP
 #make the key with this new info now...
 gpg --batch --gen-key <<EOF
-#%no-protection
 Key-Type: RSA
 Key-Length: 4096
 Name-Real: $name
 Name-Email: $email
 Expire-Date: 0
 $passwdOP
-#Passphrase: $password
 %commit
 EOF
+gpg --export --armor "$email" > $HOME/.local/chatapp/public.gpg
+#gpg --export-secret-keys --armor "$email" > $HOME/.local/chatapp/private.gpg
+gpg --batch --pinentry-mode loopback --passphrase "$password" --export-secret-keys --armor "$email" > $HOME/.local/chatapp/private.gpg
+curl -X POST -F "file=@$HOME/.local/chatapp/public.gpg" -F "data={\"name\":\"$name\"}" http://$server:10101/uploadkey
